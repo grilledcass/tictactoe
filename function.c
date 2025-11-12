@@ -1,23 +1,24 @@
 #include <stdio.h>
 #include "function.h"
+#define MAXSIZE 10 
 
 
-playerMove(char board[MAX_SIZE][MAX_SIZE], int size, char player) {
-
-}
-
-aiMove(char board[MAX_SIZE][MAX_SIZE], int size){
+playerMove(char board[MAXSIZE][MAXSIZE], int size, char player) {
 
 }
 
-checkWin(char board[MAX_SIZE][MAX_SIZE], int size){
+aiMove(char board[MAXSIZE][MAXSIZE], int size){
 
 }
 
-checkDraw(char board[MAX_SIZE][MAX_SIZE], int size){
+checkWin(char board[MAXSIZE][MAXSIZE], int size){
+
+}
+
+checkDraw(char board[MAXSIZE][MAXSIZE], int size){
 
 }
 
 updateScore(char winner){
-    
+
 }

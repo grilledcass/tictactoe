@@ -3,3 +3,20 @@ int main(){
     
 
 }
+
+int printBoard(){
+    
+}
+
+int winCheck(){
+
+}
+
+int userPlay(){
+
+}
+
+int aiMode(){
+
+}
+

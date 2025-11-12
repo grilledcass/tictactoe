@@ -5,7 +5,7 @@ int main(){
 }
 
 int printBoard(){
-    
+
 }
 
 int winCheck(){

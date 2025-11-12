@@ -8,17 +8,32 @@ int main(){
     //Initializing boardsize
     int boardSize = 0;
     int playWithAI = 0;
-    while (boardSize < 3 || boardSize > MAXSIZE){
+    while (boardSize <= 3 || boardSize > MAXSIZE){
         printf("Enter the board size (max %d): ", MAXSIZE);
         scanf("%d", &boardSize);
     }
-    char board[boardSize][boardSize];
+    int board [boardSize][boardSize];
+
+    //Intializing empty board
+    for (int i = 0; i < boardSize; i++){
+        for (int j = 0; j < boardSize; j++){
+            board[i][j] = 1;
+        }
+    }
 
     //Asking if user wants to play with AI
     do{
         printf("Do you want to play with AI? (1 for Yes, 0 for No): ");
         scanf("%d", &playWithAI);
     } while (playWithAI != 1 && playWithAI != 0);
+
+    //Printing the board
+    for (int i = 0; i < boardSize; i++){
+        for (int j = 0; j < boardSize; j++){
+            printf("%d ", board[i][j]);
+        }
+        printf("\n");
+    }
 
     return 0;
 }

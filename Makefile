@@ -1,18 +1,18 @@
 CC = gcc
 CFLAGS = -Wall -std=c99
 TARGET = main.exe
-SRC = main.c
+OBJS = main.o functions.o
 
-.PHONY: clean run 
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
 
-$(TARGET): $(SRC)
-	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+main.o: main.c functions.h
+functions.o: functions.c functions.h
 
 clean:
-	powershell -Command "if (Test-Path '$(TARGET)') { Remove-Item '$(TARGET)' }"
-	@echo Clean completed
+	del /Q $(OBJS) $(TARGET) 2>nul || exit 0
 
-run: $(TARGET)
-	$(TARGET)
-	@echo Run successful
+run:  $(TARGET)
+	./$(TARGET)
 
+.PHONY: clean run 

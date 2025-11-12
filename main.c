@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "functions.h"
 #define MAXSIZE 10 
 
 int main(){
@@ -27,14 +28,7 @@ int main(){
         scanf("%d", &playWithAI);
     } while (playWithAI != 1 && playWithAI != 0);
 
-    //Printing the board
-    for (int i = 0; i < boardSize; i++){
-        for (int j = 0; j < boardSize; j++){
-            printf("%d ", board[i][j]);
-        }
-        printf("\n");
-    }
-
+    printboard(boardSize, board);
     return 0;
 }
 

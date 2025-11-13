@@ -5,6 +5,7 @@
 // included multiple times within the project
 
 /* Function prototypes */
-void printboard(int boardSize, int board[][MAXSIZE]);
+void printBoard(int boardSize, int board[][MAXSIZE]);
+void playerMove(int boardSize, int player, int board[][MAXSIZE]);
 
 #endif

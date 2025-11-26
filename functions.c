@@ -54,88 +54,106 @@ void AIMove(int boardSize, int player, int board[][MAXSIZE])
 {
     int row = -1, col = -1;
     int playerCheck = player;
-    if (player == 1)
-        printf("AI's turn (X): \n");
-    else
-        printf("AI's turn (O): \n");
+    
+    printf("AI's turn (%c): \n", player == 1 ? 'X' : 'O');
 
-    for (int k = 0; k < 2; k++){ //First check, check if they are winning (k==0)
-        if (k == 1)
-            playerCheck *= -1;   //Second check, block opponent's winning move
-        for (int i = 0; i < boardSize; i++){
-            for (int j = 0; j < boardSize; j++){
-                // Horizontal
-                if (j < (boardSize - 2))
-                    if (board[i][j] == board[i][j + 1] && board[i][j] == playerCheck && board[i][j + 2] == 0)
-                    {
-                        row = i;
-                        col = j + 2;
-                    }
-                // Vertical
-                if (i < (boardSize - 2))
-                    if (board[i][j] == board[i + 1][j] && board[i][j] == playerCheck && board[i + 2][j] == 0)
-                    {
-                        row = i + 2;
-                        col = j;
-                    }
-                // Diagonal Right Down
-                if (j < (boardSize - 2) && i < (boardSize - 2))
-                    if (board[i][j] == board[i + 1][j + 1] && board[i][j] == playerCheck && board[i + 2][j + 2] == 0)
-                    {
-                        row = i + 2;
-                        col = j + 2;
-                    }
-                // Diagonal Left Down
-                if (j >= 2 && i < (boardSize - 2))
-                {
-                    if (board[i][j] == board[i + 1][j - 1] && board[i][j] == playerCheck && board[i + 2][j - 2] == 0)
-                    {
-                        row = i + 2;
-                        col = j - 2;
-                    }
+    for (int k = 0; k < 2; k++) {
+        if (k == 1) playerCheck *= -1;
+        
+        for (int i = 0; i < boardSize; i++) {
+            for (int j = 0; j < boardSize; j++) {
+                // Horizontal XX_
+                if (j < boardSize - 2 && board[i][j] == playerCheck && 
+                    board[i][j] == board[i][j + 1] && board[i][j + 2] == 0) {
+                    row = i; col = j + 2;
+                    break;
+                }
+                // Horizontal X_X
+                if (j < boardSize - 2 && board[i][j] == playerCheck && 
+                    board[i][j + 2] == playerCheck && board[i][j + 1] == 0) {
+                    row = i; col = j + 1;
+                    break;
+                }
+                
+                // Vertical XX_
+                if (i < boardSize - 2 && board[i][j] == playerCheck && 
+                    board[i][j] == board[i + 1][j] && board[i + 2][j] == 0) {
+                    row = i + 2; col = j;
+                    break;
+                }
+                // Vertical X_X
+                if (i < boardSize - 2 && board[i][j] == playerCheck && 
+                    board[i + 2][j] == playerCheck && board[i + 1][j] == 0) {
+                    row = i + 1; col = j;
+                    break;
+                }
+                
+                // Diagonal Right Down XX_
+                if (i < boardSize - 2 && j < boardSize - 2 && board[i][j] == playerCheck && 
+                    board[i][j] == board[i + 1][j + 1] && board[i + 2][j + 2] == 0) {
+                    row = i + 2; col = j + 2;
+                    break;
+                }
+                // Diagonal Right Down X_X
+                if (i < boardSize - 2 && j < boardSize - 2 && board[i][j] == playerCheck && 
+                    board[i + 2][j + 2] == playerCheck && board[i + 1][j + 1] == 0) {
+                    row = i + 1; col = j + 1;
+                    break;
+                }
+                
+                // Diagonal Left Down XX_
+                if (i < boardSize - 2 && j >= 2 && board[i][j] == playerCheck && 
+                    board[i][j] == board[i + 1][j - 1] && board[i + 2][j - 2] == 0) {
+                    row = i + 2; col = j - 2;
+                    break;
+                }
+                // Diagonal Left Down X_X
+                if (i < boardSize - 2 && j >= 2 && board[i][j] == playerCheck && 
+                    board[i + 2][j - 2] == playerCheck && board[i + 1][j - 1] == 0) {
+                    row = i + 1; col = j - 1;
+                    break;
                 }
             }
+            if (row != -1) break;
         }
-        
+        if (row != -1) break;
     }
-    if (row == -1 || col == -1 || row >= boardSize || col >= boardSize){
-            // Random move if no strategic move found
-            do{
-                srand(time(NULL));
-                row = rand() % boardSize;
-                col = rand() % boardSize;
-            } while (board[row][col] != 0);
-        }
+
+    if (row == -1 || col == -1) {
+        // Random move
+        do {
+            row = rand() % boardSize;
+            col = rand() % boardSize;
+        } while (board[row][col] != 0);
+    }
+    
     board[row][col] = player;
 }
 
 int checkWin(int boardSize, int board[][MAXSIZE])
-{ // Check rows and columns
+{
     for (int i = 0; i < boardSize; i++)
     {
         for (int j = 0; j < boardSize; j++)
         {
-            // Horizontal
-            if (board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2])
-            {
+            // Check only if current cell is not empty
+            if (board[i][j] == 0) continue;
+            
+            // Horizontal 
+            if (j + 2 < boardSize && board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2])
                 return board[i][j];
-            }
-            // Vertical
-            if (board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j])
-            {
+            
+            // Vertical 
+            if (i + 2 < boardSize && board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j])
                 return board[i][j];
-            }
+            
             // Diagonal Right Down
-            if (board[i][j] == board[i + 1][j + 1] && board[i][j] == board[i + 2][j + 2])
-            {
+            if (i + 2 < boardSize && j + 2 < boardSize && board[i][j] == board[i + 1][j + 1] && board[i][j] == board[i + 2][j + 2])
                 return board[i][j];
-            }
+            
             // Diagonal Left Down
-            if (j >= 2)
-                if (board[i][j] == board[i + 1][j - 1] && board[i][j] == board[i + 2][j - 2])
-                {
-                    return board[i][j];
-                }
+            if (i + 2 < boardSize && j >= 2 && board[i][j] == board[i + 1][j - 1] && board[i][j] == board[i + 2][j - 2])
+                return board[i][j];
         }
     }
     return 0;

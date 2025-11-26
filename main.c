@@ -1,67 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 #include "functions.h"
-#define MAXSIZE 13
 
-int main()
-{
-    // Initializing variables
-    int boardSize = 0;
-    int playWithAI = 0;
-    int turn = 1;
-    int winner = 0;
-    int playAgain = 0;
-    int firstHandWho = 1; // 1 for player 1, -1 for AI/player 2
-    // Score variables
-    int scorePlayer1 = 0;
-    int scorePlayer2 = 0; //Also for AI
-    
-    
-    while (boardSize < 3 || boardSize > MAXSIZE-3){
-        printf("Enter the board size (max %d): ", MAXSIZE-3);
-        scanf("%d", &boardSize);
+int main(){
+    srand(time(NULL));
+
+    int boardSize=0, playWithAI=0, turn=1, winner=0, playAgain=0;
+    int scorePlayer1=0, scorePlayer2=0;
+
+    while(boardSize<3 || boardSize>15){
+        printf("Enter board size (3-15): ");
+        scanf("%d",&boardSize);
     }
-    int board[MAXSIZE][MAXSIZE];
 
-    // Asking if user wants to play with AI
-    do
-    {
-        printf("Do you want to play with AI? (1 for Yes, 0 for No): ");
-        scanf("%d", &playWithAI);
-    } while (playWithAI != 1 && playWithAI != 0);
-    
-    initializeBoard(MAXSIZE, board); 
-    printBoard(boardSize, board);
-
-    // Game loop
     do{
-        // Intializing board
-        initializeBoard(MAXSIZE, board); 
+        printf("Play with AI? 1=Yes 0=No: ");
+        scanf("%d",&playWithAI);
+    } while(playWithAI!=0 && playWithAI!=1);
+
+    GameStats* stats = createGameStats();
+
+    do{
+        int** board = createBoard(boardSize);
+        initializeBoard(boardSize, board);
+        printBoard(boardSize, board);
+
+        GameHistory* history = createGameHistory(boardSize);
+
+        turn = 1;
         do{
-            if (checkDraw(boardSize, board)) break; //Break if it's a draw
+            if(checkDraw(boardSize, board)) break;
             winner = checkWin(boardSize, board);
-            if (isThereWinner(winner, playWithAI)) break; //Break if someone won
-            // Decision Logic for who takes the next move
-            if (firstHandWho != turn)
-                if (playWithAI)
-                    AIMove(boardSize, turn, board);
-                else
-                    playerMove(boardSize, turn, board);
-            else 
-                playerMove(boardSize, turn, board);
-            
+            if(isThereWinner(winner, playWithAI)) break;
+
+            int row, col;
+            if((turn==1) || (!playWithAI)){
+                playerMove(boardSize, turn, board, &row, &col);
+            } else {
+                AIMove(boardSize, turn, board, &row, &col);
+            }
+
+            addMove(history, row, col, (turn==1)?'X':'O');
             printBoard(boardSize, board);
-            turn *= -1;
-        } while (1);
-        if (winner == 1) scorePlayer1 = updateScore(scorePlayer1);
-        else if (winner == -1) scorePlayer2 = updateScore(scorePlayer2);
-        winner = 0;
-        printf("Score - Player 1 (X): %d | Player 2 (O): %d\n", scorePlayer1, scorePlayer2);
-        printf("Do you want to play again? (1 for Yes, any other number for No): ");
-        scanf("%d", &playAgain);
-    }while (playAgain == 1);
+            turn*=-1;
+        } while(1);
+
+        if(winner==1) scorePlayer1 = updateScore(scorePlayer1);
+        else if(winner==-1) scorePlayer2 = updateScore(scorePlayer2);
+
+        printf("Score - Player1 (X): %d | Player2/O (O): %d\n", scorePlayer1, scorePlayer2);
+        
+        updateStats(stats, winner==1?'X':winner==-1?'O':'D', winner);
+        saveReplay(history, "last_game.replay");
+
+        freeGameHistory(history);
+        freeBoard(board, boardSize);
+
+        printStatistics(stats);
+
+        char replayChoice;
+        printf("Do you want to replay the last game? (y/n): ");
+        scanf(" %c", &replayChoice);
+        if(replayChoice=='y' || replayChoice=='Y'){
+            playReplay("last_game.replay");
+        }
+
+        printf("Play again? 1=Yes, other=No: ");
+        scanf("%d",&playAgain);
+
+    } while(playAgain==1);
+
+    freeGameStats(stats);
     return 0;
 }
-

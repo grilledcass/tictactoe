@@ -1,20 +1,53 @@
-#ifndef MATHUTILS_H
-#define MATHUTILS_H
-#define MAXSIZE 13
-// The above ensure no duplication if the header file is defined elsewhere or
-// included multiple times within the project
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
 
-/* Function prototypes */
-void initializeBoard(int boardSize, int board[][MAXSIZE]);
-void printBoard(int boardSize, int board[][MAXSIZE]);
-void playerMove(int boardSize, int player, int board[][MAXSIZE]);
-void AIMove(int boardSize, int player, int board[][MAXSIZE]);
-int checkWin(int boardSize, int board[][MAXSIZE]);
-int checkDraw(int boardSize, int board[][MAXSIZE]);
-int updateScore(int winner);
+#include <stdio.h>
+#include <stdlib.h>
 
-
-/*  Ultility functions */
+int** createBoard(int size);
+void freeBoard(int** board, int size);
+void initializeBoard(int size, int** board);
+void printBoard(int size, int** board);
+void playerMove(int size, int player, int** board, int* row, int* col);
+void AIMove(int size, int player, int** board, int* row, int* col);
+int checkWin(int size, int** board);
+int checkDraw(int size, int** board);
 int isThereWinner(int winner, int playWithAI);
+int updateScore(int score);
+
+typedef struct {
+    int games_played;
+    int wins_player1;
+    int wins_player2;
+    int draws;
+    int* win_patterns;
+    int pattern_count;
+    int pattern_capacity;
+} GameStats;
+
+GameStats* createGameStats();
+void updateStats(GameStats* stats, char winner, int win_type);
+void freeGameStats(GameStats* stats);
+void printStatistics(const GameStats* stats);
+
+typedef struct {
+    int move_number;
+    int row;
+    int col;
+    char player;
+} GameMove;
+
+typedef struct {
+    GameMove* moves;
+    int move_count;
+    int move_capacity;
+    int board_size;
+} GameHistory;
+
+GameHistory* createGameHistory(int board_size);
+void addMove(GameHistory* history, int row, int col, char player);
+void freeGameHistory(GameHistory* history);
+void saveReplay(const GameHistory* history, const char* filename);
+void playReplay(const char* filename);
 
 #endif

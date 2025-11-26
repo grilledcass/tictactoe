@@ -6,71 +6,93 @@
 int main(){
     srand(time(NULL));
 
-    int boardSize=0, playWithAI=0, turn=1, winner=0, playAgain=0;
-    int scorePlayer1=0, scorePlayer2=0;
-
-    while(boardSize<3 || boardSize>15){
-        printf("Enter board size (3-15): ");
-        scanf("%d",&boardSize);
-    }
-
-    do{
-        printf("Play with AI? 1=Yes 0=No: ");
-        scanf("%d",&playWithAI);
-    } while(playWithAI!=0 && playWithAI!=1);
+    int boardSize, playWithAI, turn, winner;
+    int score1 = 0, score2 = 0;
+    int playAgain;
 
     GameStats* stats = createGameStats();
 
-    do{
-        int** board = createBoard(boardSize);
-        initializeBoard(boardSize, board);
-        printBoard(boardSize, board);
+    printf("1 = New Game\n2 = Load Saved Game\nChoice: ");
+    int mode;
+    scanf("%d", &mode);
 
-        GameHistory* history = createGameHistory(boardSize);
+    int** board;
+    GameHistory* history;
 
+    if (mode == 2){
+        if (!loadGame("saved_game.dat", &boardSize, &board, &turn, &playWithAI, &score1, &score2, &history)){
+            printf("No saved game found.\nStarting new game.\n");
+            mode = 1;
+        }
+    }
+
+    if (mode == 1){
+        do {
+            printf("Enter board size (3-15): ");
+            scanf("%d", &boardSize);
+        } while(boardSize < 3 || boardSize > 15);
+
+        do {
+            printf("Play with AI? (1=yes 0=no): ");
+            scanf("%d", &playWithAI);
+        } while(playWithAI!=0 && playWithAI!=1);
+
+        board = createBoard(boardSize);
+        initializeBoard(boardSize,board);
         turn = 1;
-        do{
-            if(checkDraw(boardSize, board)) break;
-            winner = checkWin(boardSize, board);
-            if(isThereWinner(winner, playWithAI)) break;
 
-            int row, col;
-            if((turn==1) || (!playWithAI)){
-                playerMove(boardSize, turn, board, &row, &col);
-            } else {
-                AIMove(boardSize, turn, board, &row, &col);
+        history = createGameHistory(boardSize);
+    }
+
+    do {
+        printBoard(boardSize,board);
+
+        if (checkDraw(boardSize,board)) break;
+        winner = checkWin(boardSize,board);
+        if (isThereWinner(winner,playWithAI)) break;
+
+        int r,c;
+
+        if (turn==1 || !playWithAI){
+            playerMove(boardSize, turn, board, &r, &c);
+
+            if (r == -999){
+                saveGame("saved_game.dat", boardSize, board, turn, playWithAI, score1, score2, history);
+                printf("Press ENTER to continue.\n");
+                getchar(); getchar();
+                continue;
             }
-
-            addMove(history, row, col, (turn==1)?'X':'O');
-            printBoard(boardSize, board);
-            turn*=-1;
-        } while(1);
-
-        if(winner==1) scorePlayer1 = updateScore(scorePlayer1);
-        else if(winner==-1) scorePlayer2 = updateScore(scorePlayer2);
-
-        printf("Score - Player1 (X): %d | Player2/O (O): %d\n", scorePlayer1, scorePlayer2);
-        
-        updateStats(stats, winner==1?'X':winner==-1?'O':'D', winner);
-        saveReplay(history, "last_game.replay");
-
-        freeGameHistory(history);
-        freeBoard(board, boardSize);
-
-        printStatistics(stats);
-
-        char replayChoice;
-        printf("Do you want to replay the last game? (y/n): ");
-        scanf(" %c", &replayChoice);
-        if(replayChoice=='y' || replayChoice=='Y'){
-            playReplay("last_game.replay");
+        } else {
+            AIMove(boardSize, turn, board, &r, &c);
         }
 
-        printf("Play again? 1=Yes, other=No: ");
-        scanf("%d",&playAgain);
+        addMove(history, r, c, (turn==1?'X':'O'));
+        turn *= -1;
 
-    } while(playAgain==1);
+    } while(1);
 
+
+    if (winner == 1) score1++;
+    else if (winner == -1) score2++;
+
+    printf("Score: P1=%d  P2/AI=%d\n", score1,score2);
+
+    updateStats(stats, winner==1?'X':winner==-1?'O':'D', winner);
+    printStatistics(stats);
+
+    printf("Play again? (1=yes): ");
+    scanf("%d",&playAgain);
+
+    if (playAgain==1){
+        freeBoard(board,boardSize);
+        freeGameHistory(history);
+        main();  // restart completely safe here
+        return 0;
+    }
+
+    freeBoard(board,boardSize);
+    freeGameHistory(history);
     freeGameStats(stats);
+
     return 0;
 }

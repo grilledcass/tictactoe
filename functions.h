@@ -50,4 +50,27 @@ void freeGameHistory(GameHistory* history);
 void saveReplay(const GameHistory* history, const char* filename);
 void playReplay(const char* filename);
 
+//save/load
+void saveGame(
+    const char* filename,
+    int boardSize,
+    int** board,
+    int turn,
+    int playWithAI,
+    int score1,
+    int score2,
+    const GameHistory* h
+);
+
+int loadGame(
+    const char* filename,
+    int* boardSize,
+    int*** board,
+    int* turn,
+    int* playWithAI,
+    int* score1,
+    int* score2,
+    GameHistory** history_out
+);
+
 #endif

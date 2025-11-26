@@ -3,28 +3,30 @@
 #include <string.h>
 #include <time.h>
 #include "functions.h"
-#define MAXSIZE 10
+#define MAXSIZE 13
 
 int main()
 {
-    // Initializing boardsize
+    // Initializing variables
     int boardSize = 0;
     int playWithAI = 0;
-    while (boardSize <= 3 || boardSize > MAXSIZE)
-    {
-        printf("Enter the board size (max %d): ", MAXSIZE);
+    int turn = 1;
+    int winner = 0;
+    int playAgain = 0;
+    int firstHandWho = 1; // 1 for player 1, -1 for AI/player 2
+    // Score variables
+    int scorePlayer1 = 0;
+    int scorePlayer2 = 0; //Also for AI
+    
+    
+    while (boardSize < 3 || boardSize > MAXSIZE-3){
+        printf("Enter the board size (max %d): ", MAXSIZE-3);
         scanf("%d", &boardSize);
     }
-    int board[boardSize][boardSize];
+    int board[MAXSIZE][MAXSIZE];
 
     // Intializing empty board
-    for (int i = 0; i < boardSize; i++)
-    {
-        for (int j = 0; j < boardSize; j++)
-        {
-            board[i][j] = 0;
-        }
-    }
+    initializeBoard(MAXSIZE, board); 
 
     // Asking if user wants to play with AI
     do
@@ -35,10 +37,31 @@ int main()
 
     printBoard(boardSize, board);
 
+    // Game loop
     do{
-        playerMove(boardSize, 1, board);
+    do{
+        if (checkDraw(boardSize, board)) break; //Break if it's a draw
+        winner = checkWin(boardSize, board);
+        if (isThereWinner(winner, playWithAI)) break; //Break if someone won
+        // Decision Logic for who takes the next move
+        if (firstHandWho != turn)
+            if (playWithAI)
+                AIMove(boardSize, turn, board);
+            else
+                playerMove(boardSize, turn, board);
+        else 
+            playerMove(boardSize, turn, board);
+           
         printBoard(boardSize, board);
-    } while (0);
-
+        turn *= -1;
+    } while (1);
+        if (winner == 1)
+            scorePlayer1 = updateScore(scorePlayer1);
+        else if (winner == -1)
+            scorePlayer2 = updateScore(scorePlayer2);
+        printf("Do you want to play again? (1 for Yes, 0 for No): ");
+        scanf("%d", &playAgain);
+    }while (playAgain == 1);
     return 0;
 }
+
